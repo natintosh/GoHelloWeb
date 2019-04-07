@@ -3,15 +3,27 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"time"
+
+	"github.com/gorilla/mux"
 )
 
 func greet(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World! %s", time.Now())
-	fmt.Println("Hollo")
+	fmt.Fprintf(w, "Hello World! %s\n", r.URL.Path)
+	fmt.Println("Server running")
+	fmt.Println("Hello")
+}
+
+func getBook(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	bookTitle := vars["title"]
+	pageNo := vars["page"]
+	fmt.Fprintf(w, bookTitle+pageNo)
 }
 
 func main() {
-	http.HandleFunc("/", greet)
-	http.ListenAndServe(":8080", nil)
+	r := mux.NewRouter()
+	r.HandleFunc("/", greet)
+	r.HandleFunc("/books/{title}/page/{page}", getBook)
+
+	http.ListenAndServe(":8080", r)
 }
